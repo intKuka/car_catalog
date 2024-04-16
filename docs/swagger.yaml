@@ -1,0 +1,50 @@
+basePath: /api/v1
+definitions:
+  models.Car:
+    properties:
+      id:
+        type: integer
+      mark:
+        type: string
+      model:
+        type: string
+      name:
+        type: string
+      ownerId:
+        type: integer
+      patronymic:
+        type: string
+      regNum:
+        type: string
+      surname:
+        type: string
+      year:
+        type: integer
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8383
+info:
+  contact: {}
+  title: Car Catalog API
+  version: "1.0"
+paths:
+  /cars:
+    get:
+      consumes:
+      - application/json
+      description: get cars
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Car'
+            type: array
+      summary: List cars
+      tags:
+      - cars
+swagger: "2.0"

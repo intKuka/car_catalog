@@ -1,0 +1,6 @@
+env: "local"
+http_server:
+  address: "localhost:8383"
+  idle_timeout: 60s
+storage:
+  connection_string: "postgres://jwbxougl:61Itfoucavug1gzHdJMvEmL59mPeCOsl@flora.db.elephantsql.com/jwbxougl"
