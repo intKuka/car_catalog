@@ -8,22 +8,22 @@ definitions:
         type: string
       model:
         type: string
-      name:
-        type: string
-      ownerId:
-        type: integer
-      patronymic:
-        type: string
+      owner:
+        $ref: '#/definitions/models.Owner'
       regNum:
-        type: string
-      surname:
         type: string
       year:
         type: integer
     type: object
-externalDocs:
-  description: OpenAPI
-  url: https://swagger.io/resources/open-api/
+  models.Owner:
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
 host: localhost:8383
 info:
   contact: {}

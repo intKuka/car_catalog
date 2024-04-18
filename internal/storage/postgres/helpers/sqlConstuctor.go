@@ -1,19 +1,17 @@
-package queries
+package helpers
 
 import (
+	"car_catalog/internal/models"
 	"car_catalog/internal/models/filters"
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 // TODO: consider to add JOIN
-func WriteSqlWithFilter(c *gin.Context, f *filters.Filter) string {
+func FindByFilterSql(f *filters.Filter) string {
 
 	sql := `SELECT * FROM Cars`
-
 	var filterFields []string // stores which filters must be applied
 
 	if f.RegNum != "" {
@@ -29,7 +27,7 @@ func WriteSqlWithFilter(c *gin.Context, f *filters.Filter) string {
 	}
 
 	if f.Year != 0 {
-		filterFields = append(filterFields, "year = '"+strconv.Itoa(f.Year))
+		filterFields = append(filterFields, "year = '"+strconv.Itoa(f.Year)+"'")
 	}
 
 	if f.Owner.Name != "" {
@@ -57,10 +55,42 @@ func WriteSqlWithFilter(c *gin.Context, f *filters.Filter) string {
 	return sql
 }
 
-func WriteSqlWithUpdate() string {
-	sql := `
-		UPDATE Products
-		SET Price = Price + 3000;`
+func UpdateFieldsByIdSql(c *models.Car) string {
+	sql := `UPDATE Cars
+	SET %s
+	WHERE id = $1;`
 
-	return sql
+	var setFields []string // stores which fields must be updated
+
+	if c.RegNum != "" {
+		setFields = append(setFields, "regnum = '"+c.RegNum+"'")
+	}
+
+	if c.Mark != "" {
+		setFields = append(setFields, "mark = '"+c.Mark+"'")
+	}
+
+	if c.Model != "" {
+		setFields = append(setFields, "model = '"+c.Model+"'")
+	}
+
+	if c.Year != 0 {
+		setFields = append(setFields, "year = '"+strconv.Itoa(c.Year)+"'")
+	}
+
+	if c.Owner.Name != "" {
+		setFields = append(setFields, "name = '"+c.Owner.Name+"'")
+	}
+
+	if c.Owner.Surname != "" {
+		setFields = append(setFields, "surname = '"+c.Owner.Surname+"'")
+	}
+
+	if c.Owner.Patronymic != "" {
+		setFields = append(setFields, "patronymic = '"+c.Owner.Patronymic+"'")
+	}
+
+	setString := strings.Join(setFields, ", ")
+
+	return fmt.Sprintf(sql, setString)
 }

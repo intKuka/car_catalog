@@ -55,30 +55,31 @@ const docTemplate = `{
                 "model": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
-                },
-                "ownerId": {
-                    "type": "integer"
-                },
-                "patronymic": {
-                    "type": "string"
+                "owner": {
+                    "$ref": "#/definitions/models.Owner"
                 },
                 "regNum": {
-                    "type": "string"
-                },
-                "surname": {
                     "type": "string"
                 },
                 "year": {
                     "type": "integer"
                 }
             }
+        },
+        "models.Owner": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "patronymic": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
         }
-    },
-    "externalDocs": {
-        "description": "OpenAPI",
-        "url": "https://swagger.io/resources/open-api/"
     }
 }`
 

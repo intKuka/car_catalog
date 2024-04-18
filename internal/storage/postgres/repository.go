@@ -4,8 +4,7 @@ import (
 	"car_catalog/cmd/initializers"
 	"car_catalog/internal/models"
 	"car_catalog/internal/models/filters"
-	"car_catalog/internal/storage/postgres/queries"
-	"fmt"
+	"car_catalog/internal/storage/postgres/helpers"
 	"math/rand"
 	"strconv"
 
@@ -16,9 +15,8 @@ import (
 const sqlLog = "SQL: "
 
 func GetAllCars(c *gin.Context, f *filters.Filter) (*[]models.Car, error) {
-	sql := queries.WriteSqlWithFilter(c, f)
+	sql := helpers.FindByFilterSql(f)
 	initializers.Log.Debug(sqlLog + sql)
-	initializers.Log.Info(fmt.Sprintf("%#v", f))
 
 	rows, err := initializers.DB.Query(c, sql)
 	if err != nil {
@@ -54,10 +52,6 @@ func GetAllCars(c *gin.Context, f *filters.Filter) (*[]models.Car, error) {
 	return &cars, nil
 }
 
-func GetCar() {
-
-}
-
 func CreateCar() {
 
 }
@@ -88,7 +82,7 @@ func CreateCarStub(c *gin.Context) {
 			Mark:   marks[rand.Intn(len(marks))],
 			Model:  modeles[rand.Intn(len(modeles))],
 			Year:   rand.Intn(150) + 1900,
-			Owner: models.Owner{
+			Owner: models.People{
 				Name:       names[rand.Intn(len(names))],
 				Surname:    names[rand.Intn(len(names))],
 				Patronymic: names[rand.Intn(len(names))],
@@ -118,23 +112,34 @@ func CreateCarStub(c *gin.Context) {
 }
 
 // TODO: mb write separate struct for update
-func UpdateCarById(c *gin.Context, car *models.Car) error {
+func UpdateCarById(c *gin.Context, id string, car *models.Car) error {
+	sql := "SELECT * FROM Cars WHERE id = " + id
 
-	sql := queries.WriteSqlWithUpdate()
+	row := initializers.DB.QueryRow(c, sql)
+	if err := row.Scan(); err != nil {
+		return err
+	}
+
+	sql = helpers.UpdateFieldsByIdSql(car)
 
 	initializers.Log.Debug(sqlLog + sql)
 
-	// 	if _, err := initializers.DB.Exec(c, sql, id); err != nil {
-	// 		return err
-	// 	}
+	if _, err := initializers.DB.Exec(c, sql, id); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func DeleteCarById(c *gin.Context, id string) error {
-	sql := `
-			DELETE FROM Cars
-			WHERE id=$1`
+	sql := "SELECT * FROM Cars WHERE id = " + id
+
+	row := initializers.DB.QueryRow(c, sql)
+	if err := row.Scan(); err != nil {
+		return err
+	}
+
+	sql = "DELETE FROM Cars WHERE id=$1"
 
 	initializers.Log.Debug(sqlLog + sql)
 

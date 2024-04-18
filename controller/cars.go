@@ -6,11 +6,13 @@ import (
 	"car_catalog/internal/models"
 	"car_catalog/internal/models/filters"
 	"car_catalog/internal/storage/postgres"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v5"
 )
 
 // TODO: write global error handler, middleware mb
@@ -55,6 +57,7 @@ func (c *Controller) ListCars(ctx *gin.Context) {
 
 func (c *Controller) UpdateCar(ctx *gin.Context) {
 	var car models.Car
+	id := ctx.Param("id")
 
 	if err := ctx.BindJSON(&car); err != nil {
 		initializers.Log.Error(err.Error())
@@ -62,9 +65,14 @@ func (c *Controller) UpdateCar(ctx *gin.Context) {
 		return
 	}
 
-	if err := postgres.UpdateCarById(ctx, &car); err != nil {
+	if err := postgres.UpdateCarById(ctx, id, &car); err != nil {
 		initializers.Log.Error(err.Error())
-		ctx.Status(http.StatusInternalServerError)
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			ctx.Status(http.StatusNotFound)
+		default:
+			ctx.Status(http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -76,6 +84,6 @@ func (c *Controller) DeleteCar(ctx *gin.Context) {
 
 	if err := postgres.DeleteCarById(ctx, id); err != nil {
 		initializers.Log.Error(err.Error())
-		ctx.Status(http.StatusBadRequest)
+		ctx.Status(http.StatusNotFound)
 	}
 }
